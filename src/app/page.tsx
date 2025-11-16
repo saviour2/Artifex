@@ -12,6 +12,18 @@ import {
 import { useAuth0 } from "@auth0/auth0-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+	Wrench,
+	Upload,
+	CheckCircle,
+	AlertCircle,
+	ArrowRight,
+	Hammer,
+	Settings,
+	Zap,
+	Cog,
+	Scissors,
+} from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 import {
@@ -51,7 +63,7 @@ function AuthShell() {
 					onClick={() =>
 						logout({ logoutParams: { returnTo: window.location.origin } })
 					}
-					className="btn-secondary-craft"
+					className="btn-secondary"
 				>
 					Clear session
 				</button>
@@ -62,13 +74,14 @@ function AuthShell() {
 	if (!isAuthenticated) {
 		return (
 			<CenteredCard
-				title="Sign in to RepairAll"
+				title="Sign in to Artifex"
 				body="Auth0 protects the playground. Log in to generate a repair guide."
 			>
 				<button
 					onClick={() => loginWithRedirect()}
-					className="btn-craft w-full"
+					className="btn-premium w-full"
 				>
+					<ArrowRight size={20} />
 					Continue with Auth0
 				</button>
 			</CenteredCard>
@@ -99,6 +112,8 @@ function RepairWorkspace({
 	const [error, setError] = useState<string | null>(null);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [guide, setGuide] = useState<RepairGuide | null>(null);
+	const resultsRef = useRef<HTMLElement>(null);
+	const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
 
 	const canSubmit =
 		description.trim().length > 10 && Boolean(photo) && !isGenerating;
@@ -110,6 +125,37 @@ function RepairWorkspace({
 		}
 		return status;
 	}, [status, geminiReady]);
+
+	// Toggle loading cursor class
+	useEffect(() => {
+		if (isGenerating) {
+			document.body.classList.add("loading");
+		} else {
+			document.body.classList.remove("loading");
+		}
+		return () => document.body.classList.remove("loading");
+	}, [isGenerating]);
+
+	// Track mouse position for custom cursor
+	useEffect(() => {
+		const handleMouseMove = (e: MouseEvent) => {
+			setCursorPos({ x: e.clientX, y: e.clientY });
+		};
+		window.addEventListener("mousemove", handleMouseMove);
+		return () => window.removeEventListener("mousemove", handleMouseMove);
+	}, []);
+
+	// Auto-scroll to results when guide is generated
+	useEffect(() => {
+		if (guide && resultsRef.current) {
+			setTimeout(() => {
+				resultsRef.current?.scrollIntoView({
+					behavior: "smooth",
+					block: "start",
+				});
+			}, 300);
+		}
+	}, [guide]);
 
 	// GSAP animations on mount
 	useEffect(() => {
@@ -207,40 +253,193 @@ function RepairWorkspace({
 
 	return (
 		<div className="page-shell">
-			<header className="page-header">
-				<div>
-					<p className="eyebrow">RepairAll</p>
-					<h1>Turn field damage into a visual repair plan.</h1>
-					<p className="subtext">
-						Describe the issue, add a reference photo, and let Gemini + Imagen
-						stage-by-stage instructions.
-					</p>
+			{/* Custom cursor */}
+			{isGenerating && (
+				<div
+					className={`custom-cursor ${isGenerating ? "loading" : ""}`}
+					style={{
+						left: `${cursorPos.x}px`,
+						top: `${cursorPos.y}px`,
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="#2B4C7E"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						style={{
+							transform: "translate(-50%, -50%)",
+							position: "absolute",
+							left: "0",
+							top: "0",
+						}}
+					>
+						<circle cx="12" cy="12" r="3" />
+						<path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24" />
+					</svg>
 				</div>
-				<div className="tech-chip">
+			)}
+
+			{/* Floating decorative shapes */}
+			<div
+				className="floating-shape circle orange animate-float"
+				style={{
+					width: "120px",
+					height: "120px",
+					top: "10%",
+					left: "5%",
+				}}
+			/>
+			<div
+				className="floating-shape square navy animate-float-delayed"
+				style={{
+					width: "80px",
+					height: "80px",
+					top: "60%",
+					right: "8%",
+				}}
+			/>
+			<div
+				className="floating-shape circle navy animate-float"
+				style={{
+					width: "60px",
+					height: "60px",
+					bottom: "15%",
+					left: "10%",
+				}}
+			/>
+			<div
+				className="floating-shape square orange animate-fade-drift"
+				style={{
+					width: "50px",
+					height: "50px",
+					top: "30%",
+					right: "15%",
+				}}
+			/>
+			<div
+				className="floating-shape circle orange animate-pulse-fade"
+				style={{
+					width: "90px",
+					height: "90px",
+					top: "75%",
+					left: "40%",
+				}}
+			/>
+			<div
+				className="floating-shape square navy animate-float-spin"
+				style={{
+					width: "70px",
+					height: "70px",
+					top: "45%",
+					left: "25%",
+				}}
+			/>
+			<div
+				className="floating-shape circle navy animate-fade-drift-delayed"
+				style={{
+					width: "100px",
+					height: "100px",
+					bottom: "35%",
+					right: "20%",
+				}}
+			/>
+			<div
+				className="floating-shape square orange animate-pulse-fade"
+				style={{
+					width: "55px",
+					height: "55px",
+					bottom: "50%",
+					left: "70%",
+				}}
+			/>
+
+			<header style={{ marginBottom: "3rem" }}>
+				<div className="logo-wrapper">
+					<Wrench size={32} color="#E8642C" />
+					<span className="logo-text">ARTIFEX</span>
+				</div>
+				<div className="two-col-grid" style={{ marginTop: "2rem" }}>
 					<div>
-						<p className="chip-label">Technician</p>
-						<p className="chip-value">{technician}</p>
+						<h1>Turn field damage into a visual repair plan.</h1>
+						<p
+							style={{
+								color: "#6B6B6B",
+								fontSize: "1.125rem",
+								lineHeight: "1.8",
+								marginTop: "1rem",
+							}}
+						>
+							Describe the issue, add a reference photo, and let Gemini + Imagen
+							generate stage-by-stage instructions.
+						</p>
 					</div>
-					<button onClick={onLogout} className="btn-secondary-craft text-sm">
-						Sign out
-					</button>
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "flex-end",
+							alignItems: "flex-start",
+						}}
+					>
+						<div className="user-chip">
+							<div>
+								<p className="user-chip-label">Technician</p>
+								<p className="user-chip-value">{technician}</p>
+							</div>
+							<button
+								onClick={onLogout}
+								className="btn-secondary"
+								style={{ padding: "0.75rem 1.5rem" }}
+							>
+								Sign out
+							</button>
+						</div>
+					</div>
 				</div>
 			</header>
 
-			<section className="card-grid">
-				<div className="card card-layered reveal">
+			<section className="two-col-grid">
+				<div className="card-3d reveal">
 					<h2>Describe the repair</h2>
 					<textarea
 						value={description}
 						onChange={(event) => setDescription(event.target.value)}
-						placeholder="Ex: Alum frame got dented near hinge after a fall…"
+						placeholder="Ex: Aluminum frame got dented near hinge after a fall…"
 						rows={6}
+						style={{ marginBottom: "1.5rem" }}
 					/>
 
-					<label className="upload">
-						<span>Attach a reference photo</span>
-						<input type="file" accept="image/*" onChange={handleFileChange} />
+					<label
+						className="label-text"
+						style={{ display: "block", marginBottom: "0.75rem" }}
+					>
+						Attach a reference photo
 					</label>
+					<div
+						className={`upload-area ${photo ? "has-file" : ""}`}
+						onClick={() => document.getElementById("file-input")?.click()}
+					>
+						<Upload
+							size={32}
+							color="#4A5568"
+							style={{ margin: "0 auto 0.75rem" }}
+						/>
+						<p style={{ color: "#6B6B6B", fontSize: "0.875rem" }}>
+							{photo ? photo.name : "Click to upload image (max 4MB)"}
+						</p>
+						<input
+							id="file-input"
+							type="file"
+							accept="image/*"
+							onChange={handleFileChange}
+							style={{ display: "none" }}
+						/>
+					</div>
 					{preview && (
 						<Image
 							src={preview}
@@ -253,10 +452,10 @@ function RepairWorkspace({
 					)}
 				</div>
 
-				<div className="card card-layered reveal status-card">
-					<div className="status-line">
-						<p className="eyebrow">Status</p>
-						<span className={`status-dot ${isGenerating ? "pulse" : "idle"}`} />
+				<div className="card-3d reveal status-card">
+					<div className="status-header">
+						<span className="eyebrow">Status</span>
+						<span className={`status-dot ${isGenerating ? "pulse" : ""}`} />
 					</div>
 					<p className="status-text">{guidance}</p>
 					<p className="status-subtext">
@@ -264,54 +463,104 @@ function RepairWorkspace({
 							? "Gemini 2.5 Pro handles the JSON plan and Imagen drafts step imagery."
 							: "Provide NEXT_PUBLIC_GEMINI_API_KEY to enable live calls."}
 					</p>
-					<div className="cta-row">
+					<div className="button-group">
 						<button
 							onClick={handleGenerate}
 							disabled={!canSubmit}
-							className="btn-craft flex-1"
+							className="btn-premium"
 						>
-							Generate guide
+							{isGenerating ? (
+								<>Processing...</>
+							) : (
+								<>
+									<CheckCircle size={20} />
+									Generate guide
+								</>
+							)}
 						</button>
 						<button
 							onClick={resetGuide}
-							className="btn-ghost-craft"
+							className="btn-secondary"
 							disabled={isGenerating}
 						>
 							Reset
 						</button>
 					</div>
-					{error && <p className="error-text">{error}</p>}
+					{error && (
+						<div
+							style={{
+								display: "flex",
+								alignItems: "center",
+								gap: "0.5rem",
+								marginTop: "1rem",
+							}}
+						>
+							<AlertCircle size={18} color="#E8642C" />
+							<p className="error-text">{error}</p>
+						</div>
+					)}
 				</div>
 			</section>
 
-			{guide && <GuideResults guide={guide} />}
+			{guide && <GuideResults guide={guide} resultsRef={resultsRef} />}
 		</div>
 	);
 }
 
-function GuideResults({ guide }: { guide: RepairGuide }) {
+function GuideResults({
+	guide,
+	resultsRef,
+}: {
+	guide: RepairGuide;
+	resultsRef: React.RefObject<HTMLElement | null>;
+}) {
 	return (
-		<section className="results">
-			<header>
-				<p className="eyebrow">Generated guide</p>
+		<section className="results-section" ref={resultsRef}>
+			<header className="results-header">
+				<span className="eyebrow">Generated guide</span>
 				<h2>{guide.title}</h2>
-				{guide.safety && <p className="safety">⚠️ {guide.safety}</p>}
-			</header>
-			<div className="steps">
-				{guide.steps.map((step, index) => (
-					<article
-						key={step.title + index}
-						className="step-card card-layered reveal"
+				{guide.safety && (
+					<div
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: "0.75rem",
+							marginTop: "1rem",
+						}}
 					>
-						<div>
-							<p className="eyebrow">Step {index + 1}</p>
-							<h3>{step.title}</h3>
-							<p>{step.description}</p>
-							{step.tools && step.tools.length > 0 && (
-								<p className="tools">Tools: {step.tools.join(", ")}</p>
-							)}
-							{step.caution && <p className="caution">⚠️ {step.caution}</p>}
-						</div>
+						<AlertCircle size={24} color="#E8642C" />
+						<p style={{ color: "#E8642C", fontWeight: 600 }}>{guide.safety}</p>
+					</div>
+				)}
+			</header>
+			<div className="steps-grid">
+				{guide.steps.map((step, index) => (
+					<article key={step.title + index} className="step-card reveal">
+						<p className="step-number">Step {index + 1}</p>
+						<h3 className="step-title">{step.title}</h3>
+						<p className="step-description">{step.description}</p>
+						{step.tools && step.tools.length > 0 && (
+							<p className="step-tools">
+								<Wrench
+									size={16}
+									style={{ display: "inline", marginRight: "0.5rem" }}
+								/>
+								Tools: {step.tools.join(", ")}
+							</p>
+						)}
+						{step.caution && (
+							<div
+								style={{
+									display: "flex",
+									alignItems: "center",
+									gap: "0.5rem",
+									marginTop: "0.75rem",
+								}}
+							>
+								<AlertCircle size={16} color="#E8642C" />
+								<p className="step-caution">{step.caution}</p>
+							</div>
+						)}
 						{step.image && (
 							<Image
 								src={step.image}
@@ -340,10 +589,12 @@ function CenteredCard({
 }) {
 	return (
 		<div className="page-shell center">
-			<div className="card card-layered w-full max-w-md text-center">
-				<p className="eyebrow mb-2">RepairAll</p>
+			<div className="card-3d w-full max-w-md text-center">
+				<span className="eyebrow mb-2">ARTIFEX</span>
 				<h1>{title}</h1>
-				<p className="subtext">{body}</p>
+				<p style={{ color: "#6B6B6B", marginTop: "1rem", lineHeight: "1.6" }}>
+					{body}
+				</p>
 				{children && <div className="mt-6 flex justify-center">{children}</div>}
 			</div>
 		</div>
@@ -356,9 +607,19 @@ function MissingConfig() {
 			title="Configure Auth0"
 			body="Set NEXT_PUBLIC_AUTH0_DOMAIN and NEXT_PUBLIC_AUTH0_CLIENT_ID in .env.local to unlock the app."
 		>
-			<pre className="env-hint">
-				NEXT_PUBLIC_AUTH0_DOMAIN=dev-xxxxx.auth0.com
-				NEXT_PUBLIC_AUTH0_CLIENT_ID=YOUR_CLIENT_ID
+			<pre
+				style={{
+					background: "rgba(245, 241, 232, 0.6)",
+					padding: "1rem",
+					border: "2px solid #4A5568",
+					textAlign: "left",
+					fontSize: "0.75rem",
+					lineHeight: "1.5",
+					marginTop: "1rem",
+				}}
+			>
+				NEXT_PUBLIC_AUTH0_DOMAIN=dev-xxxxx.auth0.com{"\n"}
+				NEXT_PUBLIC_AUTH0_CLIENT_ID=YOUR_CLIENT_ID{"\n"}
 				NEXT_PUBLIC_GEMINI_API_KEY=YOUR_KEY
 			</pre>
 		</CenteredCard>

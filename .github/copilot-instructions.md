@@ -5,7 +5,7 @@
 
 - [x] Scaffold the Project (create-next-app with Tailwind, TS, ESLint, React Compiler, npm alias @/\*)
 
-- [x] Customize the Project (Restored RepairAll flow with Auth0 gate, describe/upload form, Gemini-driven guide output)
+- [x] Customize the Project (Restored Artifex flow with Auth0 gate, describe/upload form, Gemini-driven guide output)
 
 - [x] Install Required Extensions (No extensions recommended by tooling, so none installed.)
 

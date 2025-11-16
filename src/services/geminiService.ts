@@ -7,6 +7,9 @@ const GENERATE_IMAGE_MODEL = "imagen-3.0-generate-001";
 const GOOGLE_API_BASE =
 	"https://generativelanguage.googleapis.com/v1beta/models";
 
+// Use Unsplash's random image API with search terms
+const UNSPLASH_RANDOM_API = "https://source.unsplash.com/featured/800x480";
+
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 const hasLiveApi = Boolean(apiKey);
 
@@ -72,22 +75,30 @@ export async function generateRepairGuide({
 
 	const plan = await requestPlan(description, photoUrl, onStatus);
 	const steps = await Promise.all(
-		plan.steps.map(async (step) => {
-			let image = photoUrl;
-			if (photoUrl) {
-				try {
-					image = await requestStepImage(
-						step.title,
-						step.description,
-						photoUrl,
-						onStatus
-					);
-				} catch (error) {
-					console.warn(
-						"Imagen request failed, falling back to uploaded photo",
-						error
-					);
-				}
+		plan.steps.map(async (step, index) => {
+			let image: string | undefined = undefined;
+
+			// Try to get a relevant image based on step content
+			try {
+				onStatus?.(`Fetching image for "${step.title}"`);
+				image = await fetchRelevantImage(
+					step.title,
+					step.description,
+					step.tools,
+					index
+				);
+				console.log(
+					`Successfully fetched image for step ${index + 1}:`,
+					image?.substring(0, 50)
+				);
+			} catch (error) {
+				console.error(`Failed to fetch image for step ${index + 1}:`, error);
+			}
+
+			// Fallback to placeholder if fetch fails
+			if (!image) {
+				console.warn(`Using placeholder for step ${index + 1}`);
+				image = buildPlaceholderImage(index);
 			}
 
 			return {
@@ -102,6 +113,77 @@ export async function generateRepairGuide({
 		safety: plan.safety,
 		steps,
 	};
+}
+
+async function fetchRelevantImage(
+	stepTitle: string,
+	stepDescription: string,
+	tools?: string[],
+	index?: number
+): Promise<string | undefined> {
+	// Build search keywords from step title, description, and tools
+	const keywords: string[] = [];
+
+	// Extract key words from title (remove common words)
+	const titleWords = stepTitle
+		.toLowerCase()
+		.replace(/[^a-z0-9\s]/g, "")
+		.split(/\s+/)
+		.filter(
+			(word) =>
+				word.length > 3 &&
+				!["step", "with", "from", "that", "this"].includes(word)
+		);
+	keywords.push(...titleWords);
+
+	// Add main tools if available
+	if (tools && tools.length > 0) {
+		keywords.push(
+			...tools
+				.slice(0, 2)
+				.map((t) => t.toLowerCase().replace(/[^a-z0-9\s]/g, ""))
+		);
+	}
+
+	// Add repair/fix context for better results
+	const repairKeywords = ["repair", "tool", "fix", "hardware", "maintenance"];
+	keywords.push(...repairKeywords);
+
+	// Build search query (limit to 3-4 most relevant keywords)
+	const searchTerms = [...new Set(keywords)].slice(0, 4).join(",");
+
+	if (!searchTerms) {
+		console.warn(`No keywords extracted for step ${index}`);
+		return undefined;
+	}
+
+	try {
+		console.log(`Fetching image for step ${index} with query: ${searchTerms}`);
+
+		// Use our Next.js API route to proxy the image request (avoids CORS)
+		const apiUrl = `/api/fetch-image?q=${encodeURIComponent(
+			searchTerms
+		)}&index=${index || 0}`;
+		const response = await fetch(apiUrl);
+
+		if (response.ok) {
+			const blob = await response.blob();
+
+			// Convert blob to base64 data URL
+			return new Promise<string>((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onloadend = () => resolve(reader.result as string);
+				reader.onerror = reject;
+				reader.readAsDataURL(blob);
+			});
+		} else {
+			console.error(`Image API returned ${response.status} for step ${index}`);
+			return undefined;
+		}
+	} catch (error) {
+		console.error(`Error fetching image for step ${index}:`, error);
+		return undefined;
+	}
 }
 
 async function requestPlan(
@@ -250,11 +332,29 @@ async function validateFile(file: File): Promise<void> {
 }
 
 function buildGuideFromFallback(photoUrl?: string): RepairGuide {
-	const image = photoUrl ?? buildPlaceholderImage();
 	const steps: TutorialStep[] = FALLBACK_GUIDE.steps.map((step, index) => ({
 		...step,
-		image: index % 2 === 0 ? image : buildPlaceholderImage(index),
+		image: buildPlaceholderImage(index),
 	}));
+
+	// Try to fetch dynamic images for fallback guide too
+	setTimeout(async () => {
+		for (let i = 0; i < steps.length; i++) {
+			const step = FALLBACK_GUIDE.steps[i];
+			try {
+				const image = await fetchRelevantImage(
+					step.title,
+					step.description,
+					step.tools
+				);
+				if (image) {
+					steps[i].image = image;
+				}
+			} catch (error) {
+				console.warn("Failed to fetch dynamic fallback image", error);
+			}
+		}
+	}, 0);
 
 	return {
 		title: FALLBACK_GUIDE.title,
@@ -280,7 +380,7 @@ function buildPlaceholderImage(seed = 0): string {
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgba(255,255,255,0.15)";
 	ctx.font = "bold 48px 'Space Grotesk', sans-serif";
-	ctx.fillText("RepairAll", 36, 96);
+	ctx.fillText("Artifex", 36, 96);
 	ctx.font = "400 28px 'Space Grotesk', sans-serif";
 	ctx.fillText("Image unavailable", 36, 146);
 

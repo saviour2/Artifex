@@ -3,7 +3,7 @@ import Providers from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-	title: "RepairAll - Vintage Repair Manual",
+	title: "Artifex - AI Repair Assistant",
 	description:
 		"Turn field damage into a visual repair plan with AI-powered step-by-step guides.",
 };
