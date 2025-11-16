@@ -1,55 +1,82 @@
-## Artifex · AI Repair Assistant
+# Artifex · AI Repair Assistant
 
-This Next.js build delivers a premium, bold repair guide generator: Auth0-gated authentication, a text + photo intake form, and a two-step Gemini pipeline that returns a structured repair tutorial. When the Gemini key is missing, the UI falls back to a deterministic sample guide so teammates can still explore the UX.
+**🔗 Live Demo:** [https://artifexrepairs.vercel.app/](https://artifexrepairs.vercel.app/)
 
-## Features
+Transform field damage photos into professional, step-by-step repair guides powered by Google Gemini AI. Artifex combines secure authentication, intelligent image analysis, and contextual visual references to deliver premium repair documentation in seconds.
 
-- **Auth0 Login Gate** – SPA-style flow using `@auth0/auth0-react`. Missing environment variables render a helpful configuration screen so new contributors know how to configure `.env.local`.
-- **Describe & Upload** – Rich textarea, file picker with visual upload area, inline preview, and guardrails for the 4 MB limit.
-- **Live Status** – Progress text updates (`Planning repair…`, `Generating imagery…`) fed from the service layer to the UI with animated status indicators.
-- **Guide Rendering** – Bold 3D cards with caution callouts, tool lists, and inline base64 images (Imagen output when keys exist, canvas placeholders otherwise).
-- **Reset + Session Controls** – Clear button to start a new run plus a technician chip with one-click sign out.
-- **Premium Interface** – Bold, confident design with 3D depth, floating geometric shapes, strong shadows, and GSAP-powered entrance animations.
+---
 
-## Configuration
+## ✨ Features
 
-Create `.env.local` and provide:
+### 🔐 Secure Authentication
+Auth0-powered login gate ensures only authorized technicians access the AI repair assistant. Session management with one-click logout keeps your workflow secure.
 
-```
-NEXT_PUBLIC_AUTH0_DOMAIN=dev-yourtenant.auth0.com
-NEXT_PUBLIC_AUTH0_CLIENT_ID=abc123yourclientid
-NEXT_PUBLIC_GEMINI_API_KEY=sk-your-gemini-key
-```
+### 📸 Smart Damage Analysis
+Upload photos up to 4MB with instant visual preview. AI analyzes device type, damage patterns, and repair complexity to generate tailored guidance.
 
-- Without Auth0 vars the app shows a configuration screen.
-- Without the Gemini key, `generateRepairGuide` returns the curated fallback guide so demos still work.
+### 🤖 Gemini AI Integration
+- **Gemini 2.5 Pro** analyzes damage and generates structured repair plans
+- **Contextual Image Generation** via Pexels API delivers device-specific repair photos (laptops, phones, electronics)
+- Intelligent step sequencing with safety warnings and tool recommendations
 
-## Scripts
+### 🎨 Premium Crafted Interface
+- **3D Depth Cards** with layered shadows and hover effects
+- **Custom Animated Cursors** – Mirrored wrench default, rotating gear during AI generation
+- **14 Floating Elements** – Geometric shapes and tool icons with GSAP animations
+- **Bold Visual Design** – Strong shadows, visible grid patterns, premium button interactions
+- **Auto-Scroll Navigation** – Smooth transitions to results after generation
 
-| Command         | Purpose                                                   |
-| --------------- | --------------------------------------------------------- |
-| `npm run dev`   | Launch the Next.js dev server on <http://localhost:3000>. |
-| `npm run build` | Create a production bundle (required before deployment).  |
-| `npm run start` | Serve the production build locally.                       |
-| `npm run lint`  | Run ESLint with the Next.js config.                       |
+### 📋 Detailed Repair Guides
+Each guide includes:
+- ⚠️ Safety warnings and caution callouts
+- 🛠️ Required tools and materials lists
+- 📸 High-quality contextual repair images
+- 📝 Step-by-step instructions with difficulty ratings
+- ⏱️ Estimated time and skill level indicators
 
-## Key Files
+### 🎯 Real-Time Progress Tracking
+Live status updates with animated indicators:
+- "Planning repair strategy..."
+- "Analyzing damage patterns..."
+- "Generating visual references..."
+- "Finalizing repair guide..."
 
-- `src/app/page.tsx` – Auth0 gating + Artifex UI shell with premium components.
-- `src/app/providers.tsx` – wraps the app in `Auth0Provider` when env vars exist.
-- `src/app/globals.css` – comprehensive Premium Crafted Interface styling with 3D cards, premium buttons, grid backgrounds, and animations.
-- `src/lib/types.ts` – shared TypeScript contracts for guides/steps.
-- `src/services/geminiService.ts` – client-side Gemini plan + Imagen render workflow with fallback generation.
+### 🔄 Session Management
+- **Reset Button** – Start new repairs instantly
+- **Technician Chip** – Quick profile access and logout
+- **Persistent Auth** – Seamless session handling across page refreshes
 
-## Workflow Overview
+### ⚡ Performance Optimized
+- Vercel Speed Insights integration for real-time Core Web Vitals
+- Image optimization and CDN delivery
+- Serverless API routes for scalable AI processing
 
-1. User signs in with Auth0 (or sees guidance to configure it).
-2. They describe the damage, attach a ≤4 MB image, and click **Generate guide**.
-3. `generateRepairGuide` encodes the photo, calls Gemini 2.5 Pro for a JSON plan, then calls Imagen 4 for per-step imagery (or generates placeholders).
-4. The UI streams progress updates with animated status indicators and finally renders the `RepairGuide` object in bold 3D cards.
+---
 
-## Notes
+## 🎯 Use Cases
 
-- API calls happen browser-side just like the original prototype. Move them behind a proxy before production to keep keys private.
-- All UI is intentionally single-page so Auth0 + AI experimentation stays straightforward.
-- Design features bold, confident aesthetics with NO subtle effects – strong shadows, visible grid patterns, prominent animations, and premium button interactions.
+- **Field Technicians** – Generate repair plans on-site with photo uploads
+- **Repair Shops** – Standardize documentation across team members
+- **Training Programs** – Create consistent learning materials for new technicians
+- **Quality Assurance** – Ensure thorough repair procedures with safety compliance
+
+---
+
+## 🚀 Tech Stack
+
+- **Framework:** Next.js 16 with App Router & Turbopack
+- **Styling:** Tailwind CSS v4 with custom inline theme
+- **Authentication:** Auth0 SPA SDK
+- **AI Services:** Google Generative AI (Gemini 2.5 Pro)
+- **Image API:** Pexels (contextual repair photography)
+- **Animations:** GSAP 3.x + ScrollTrigger
+- **Icons:** lucide-react
+- **Deployment:** Vercel with automatic CI/CD
+
+---
+
+## 🌐 Live Application
+
+**Experience Artifex in production:** [https://artifexrepairs.vercel.app/](https://artifexrepairs.vercel.app/)
+
+Try it with any device repair scenario – the AI adapts to laptops, smartphones, tablets, and general electronics.
