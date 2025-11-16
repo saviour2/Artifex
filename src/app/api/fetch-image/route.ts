@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 		const isLaptopRepair = keywords.match(
 			/macbook|laptop|computer|screen|display|keyboard|trackpad|battery|logic|board/i
 		);
-		
+
 		// Detect if this is phone/mobile related
 		const isPhoneRepair = keywords.match(
 			/phone|iphone|android|mobile|smartphone|cell/i
