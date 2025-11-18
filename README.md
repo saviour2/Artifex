@@ -168,7 +168,7 @@ PEXELS_API_KEY=your-pexels-api-key
 ## 👥 Team
 
 **[Saikat Das](github.com/saviour2)** – Full-Stack Development & AI Integration  
-**[Subarna Maity](github.com/Dronzer2Code)** – UI/UX Design & Frontend  
+**[Subarna Maity](github.com/Dronzer2Code)** – UI/UX Design, Frontend & Project-Architecture
 **[Soumyadeep Dey](github.com/SoumyaEXE)** – Backend Architecture & API Integration  
 
 ---
